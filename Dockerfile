@@ -14,7 +14,7 @@ COPY . /app
 # Install dependencies
 RUN pip install --no-cache-dir flask
 
-
+# Expose a new port (e.g., 8080)
 EXPOSE 8080
 
 # Run the Flask app
