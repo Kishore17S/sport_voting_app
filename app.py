@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request, jsonify
 import sqlite3
+import os
 
 app = Flask(__name__, template_folder='frontend', static_folder='frontend')
 app.secret_key = "supersecretkey"  # For session management
 
 def init_db():
+    """Initialize the database if it doesn't exist."""
     conn = sqlite3.connect('votes.db')
     c = conn.cursor()
     c.execute('CREATE TABLE IF NOT EXISTS votes (option TEXT PRIMARY KEY, count INTEGER)')
@@ -13,12 +15,18 @@ def init_db():
     conn.commit()
     conn.close()
 
+# Check if the database exists and initialize it if necessary
+if not os.path.exists('votes.db'):
+    init_db()
+
 @app.route('/')
 def index():
+    """Render the main voting page."""
     return render_template('index.html')
 
 @app.route('/vote', methods=['POST'])
 def vote():
+    """Handle voting for a selected option."""
     selected = request.form.get('option')
     if selected not in ['Cricket', 'Football']:
         return jsonify({'status': 'error', 'message': 'Invalid option!'})
@@ -33,6 +41,7 @@ def vote():
 
 @app.route('/results')
 def results():
+    """Fetch and return the voting results."""
     conn = sqlite3.connect('votes.db')
     c = conn.cursor()
     c.execute('SELECT * FROM votes')
