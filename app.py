@@ -2,9 +2,8 @@ from flask import Flask, render_template, request, jsonify
 import sqlite3
 
 app = Flask(__name__, template_folder='frontend', static_folder='frontend')
-app.secret_key = "supersecretkey"  # for session management
+app.secret_key = "supersecretkey"  # For session management
 
-# Initialize the database (Create table and set initial counts)
 def init_db():
     conn = sqlite3.connect('votes.db')
     c = conn.cursor()
@@ -13,9 +12,6 @@ def init_db():
     c.execute('INSERT OR IGNORE INTO votes (option, count) VALUES (?, ?)', ('Football', 0))
     conn.commit()
     conn.close()
-
-# 🟢 Call DB initializer here itself — safe for Docker/OpenShift
-init_db()
 
 @app.route('/')
 def index():
@@ -27,7 +23,6 @@ def vote():
     if selected not in ['Cricket', 'Football']:
         return jsonify({'status': 'error', 'message': 'Invalid option!'})
 
-    # Update the vote count for the selected option
     conn = sqlite3.connect('votes.db')
     c = conn.cursor()
     c.execute('UPDATE votes SET count = count + 1 WHERE option = ?', (selected,))
@@ -46,4 +41,5 @@ def results():
     return jsonify(results)
 
 if __name__ == '__main__':
+    init_db()
     app.run(host="0.0.0.0", port=8080)
