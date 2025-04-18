@@ -8,7 +8,6 @@
 <body>
     <h1>Vote for Your Favorite Sport!</h1>
 
-    <!-- Voting Buttons -->
     <form id="voteForm">
         <button type="submit" name="option" value="Cricket">🏏 Cricket</button>
         <button type="submit" name="option" value="Football">⚽ Football</button>
@@ -20,30 +19,28 @@
     </div>
 
     <script>
-        // Handle the vote form submission
         const form = document.getElementById('voteForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const option = e.submitter.value;
 
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const option = e.submitter.value;
-
-            // Send vote to the server
-            fetch('/vote', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `option=${option}`
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    loadResults();  // Update the live vote count
-                } else {
-                    alert(data.message);
-                }
+                fetch('/vote', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `option=${option}`
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        document.getElementById('voteForm').innerHTML = '✅ Thanks for voting!';
+                    } else {
+                        alert(data.message);
+                    }
+                });
             });
-        });
+        }
 
-        // Load the current results from the database
         function loadResults() {
             fetch('/results')
                 .then(res => res.json())
@@ -56,9 +53,8 @@
                 });
         }
 
-        // Update the results every 2 seconds
         setInterval(loadResults, 2000);
-        loadResults();  // Initial load
+        loadResults();
     </script>
 </body>
 </html>
