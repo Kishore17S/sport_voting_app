@@ -13,48 +13,30 @@
         <button type="submit" name="option" value="Football">⚽ Football</button>
     </form>
 
-    <h2>Live Vote Count</h2>
-    <div id="results">
-        Loading...
-    </div>
+    <p id="message" style="font-weight: bold; margin-top: 20px;"></p>
 
     <script>
         const form = document.getElementById('voteForm');
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const option = e.submitter.value;
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const option = e.submitter.value;
 
-                fetch('/vote', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `option=${option}`
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        document.getElementById('voteForm').innerHTML = '✅ Thanks for voting!';
-                    } else {
-                        alert(data.message);
-                    }
-                });
+            fetch('/vote', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `option=${option}`
+            })
+            .then(res => res.json())
+            .then(data => {
+                const msg = document.getElementById('message');
+                if (data.status === 'success') {
+                    msg.textContent = '✅ ' + data.message;
+                    form.innerHTML = '';  // optionally remove the form after vote
+                } else {
+                    msg.textContent = '❌ ' + data.message;
+                }
             });
-        }
-
-        function loadResults() {
-            fetch('/results')
-                .then(res => res.json())
-                .then(data => {
-                    const div = document.getElementById('results');
-                    div.innerHTML = '';
-                    data.forEach(row => {
-                        div.innerHTML += `<p>${row[0]}: ${row[1]}</p>`;
-                    });
-                });
-        }
-
-        setInterval(loadResults, 2000);
-        loadResults();
+        });
     </script>
 </body>
 </html>
