@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Favorite Sport Voting</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Vote for Your Favorite Sport!</h1>
+
+    <form id="voteForm">
+        <button type="submit" name="option" value="Cricket">🏏 Cricket</button>
+        <button type="submit" name="option" value="Football">⚽ Football</button>
+    </form>
+
+    <h2>Live Vote Count</h2>
+    <div id="results">
+        Loading...
+    </div>
+
+    <script>
+        const form = document.getElementById('voteForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const option = e.submitter.value;
+
+                fetch('/vote', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `option=${option}`
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        document.getElementById('voteForm').innerHTML = '✅ Thanks for voting!';
+                    } else {
+                        alert(data.message);
+                    }
+                });
+            });
+        }
+
+        function loadResults() {
+            fetch('/results')
+                .then(res => res.json())
+                .then(data => {
+                    const div = document.getElementById('results');
+                    div.innerHTML = '';
+                    data.forEach(row => {
+                        div.innerHTML += `<p>${row[0]}: ${row[1]}</p>`;
+                    });
+                });
+        }
+
+        setInterval(loadResults, 2000);
+        loadResults();
+    </script>
+</body>
+</html>
